@@ -82,6 +82,8 @@
   .special span{font-size:14px;font-weight:600}
   .h-price{text-transform:none;font-size:.6em;margin-left:.35em;color:var(--teal);vertical-align:.12em;white-space:nowrap}
   .today{background:var(--red);color:var(--cream);border-radius:999px;padding:3px 10px;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  .special.happy{margin:6px 0 0}
+  .special.happy.on{background:#FFF4DC;border:1.5px solid var(--amber);animation:glow 2.4s ease-in-out infinite}
   .special .pr{font-family:var(--display);font-size:24px}
 
   /* Footer */
@@ -92,7 +94,7 @@
   footer a{color:var(--cream);font-weight:700}
   .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--cream);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;transition:.25s;pointer-events:none;z-index:9}
   .toast.on{opacity:1;transform:translate(-50%,0)}
-  @media (prefers-reduced-motion:reduce){main.fade,.chip.live,.dot,.serving{animation:none}.chip.live{box-shadow:0 0 0 3px #F7AC4266}}
+  @media (prefers-reduced-motion:reduce){main.fade,.chip.live,.dot,.serving,.special.happy.on{animation:none}.chip.live{box-shadow:0 0 0 3px #F7AC4266}}
 </style>
 </head>
 <body>
@@ -146,7 +148,7 @@ const MENU = [
     { name:'Liqueur', items:[['Jägermeister',null,[20,280]],['Choya',null,[22,180]]] },
   ]},
 
-  { id:'beer-wine', name:'Beer & Wine', mn:'Шар айраг, дарс', art:'beer', groups:[
+  { id:'beer-wine', name:'Beer & Wine', mn:'Шар айраг, дарс', art:'beer', happy:true, groups:[
     { name:'Draught beer', items:[['Altangobi',null,15],['Sengur',null,13]] },
     { name:'Bottled beer', items:[['Asahi','0.33 L',16],['Corona','0.33 L',16],['Kaltenberg',null,14],['Borgio',null,14]] },
     { name:'House wine', note:'By the glass', items:[['House white wine',null,20],['House red wine',null,18]] },
@@ -219,15 +221,24 @@ const weekday = () => { const d = todayUB(); return d >= 1 && d <= 5; };
 function isDay(){ const h = hourUB(); return h >= DAY_FROM && h < EVENING_FROM; }
 function isServing(){ const h = hourUB(); return weekday() && h >= SERVE_FROM && h < SERVE_TO; }
 function isLunchTime(){ const h = hourUB(); return weekday() && h >= DAY_FROM && h < SERVE_TO; }
+/* Happy hour: every day 12:00–19:59, all beers 2+1. Beer & Wine moves up while it runs. */
+const HAPPY_FROM = 12, HAPPY_TO = 20;
+function isHappy(){ const h = hourUB(); return h >= HAPPY_FROM && h < HAPPY_TO; }
+function liveFor(id){ return (id === 'lunch' && isServing()) || (id === 'beer-wine' && isHappy()); }
 function ordered(){
-  const order = isDay() ? DAY_ORDER : NIGHT_ORDER;
+  let order = isDay() ? DAY_ORDER : NIGHT_ORDER;
+  if (isHappy()){
+    order = order.filter(id => id !== 'beer-wine');
+    if (isDay()) order.splice(order.indexOf('food') + 1, 0, 'beer-wine');
+    else order.unshift('beer-wine');
+  }
   const byId = id => MENU.find(c => c.id === id);
   const main = order.map(byId).filter(Boolean);
   const extra = MENU.filter(c => c.id !== 'lunch' && !order.includes(c.id));
   const lunch = MENU.filter(c => c.id === 'lunch');
   return isLunchTime() ? [...lunch, ...main, ...extra] : [...main, ...extra, ...lunch];
 }
-function stateKey(){ return [isServing(), isDay(), isLunchTime()].join(); }
+function stateKey(){ return [isServing(), isDay(), isLunchTime(), isHappy()].join(); }
 function todayUB(){ try { return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(new Intl.DateTimeFormat('en-US',{weekday:'short',timeZone:'Asia/Ulaanbaatar'}).format(new Date())); } catch(e){ return new Date().getDay(); } }
 let cat = 'all';
 const h0 = location.hash.slice(1);
@@ -236,7 +247,7 @@ if (MENU.some(c => c.id === h0)) cat = h0;
 function chips(){
   const list = [{id:'all',name:'All'}, ...ordered()];
   $('#cats').innerHTML = list.map(c =>
-    `<button class="chip${c.id==='lunch'&&isServing()?' live':''}" data-cat="${c.id}" aria-pressed="${c.id===cat}">${c.id==='lunch'&&isServing()?'<i class="dot" aria-hidden="true"></i>':''}${c.name}${c.id==='lunch'&&isServing()?'<span class="sr"> — serving now</span>':''}</button>`).join('');
+    `<button class="chip${liveFor(c.id)?' live':''}" data-cat="${c.id}" aria-pressed="${c.id===cat}">${liveFor(c.id)?'<i class="dot" aria-hidden="true"></i>':''}${c.name}${liveFor(c.id)?`<span class="sr"> — ${c.id==='lunch'?'serving now':'happy hour now'}</span>`:''}</button>`).join('');
 }
 
 function rowHTML([n,d,p], two){
@@ -262,10 +273,11 @@ function catHTML(c){
       : `<div class="g-head one"><h3>${g.name}</h3>${g.day===todayUB()?'<span class="today">Today</span>':g.note?`<span>${g.note}</span>`:''}</div>`;
     return `<div class="group">${head}${g.items.map(i => rowHTML(i, two)).join('')}</div>`;
   }).join('');
+  const hh = c.happy ? `<div class="special happy${isHappy()?' on':''}"><div><b>Happy hour</b><span>All beers · every day 12:00–20:00</span></div><span class="pr">2+1</span></div>` : '';
   const sp = c.special ? `<div class="special"><div><b>${c.special[0]}</b><span>${c.special[1]}</span></div><span class="pr">${k(c.special[2])}</span></div>` : '';
   return `<section class="cat" id="s-${c.id}" aria-labelledby="h-${c.id}">
-    <div class="cat-head"><div><h2 id="h-${c.id}">${c.name.replace(' & ', ' &amp;<br>')}${c.lunch?`<span class="h-price">${k(c.lunch.price)}</span>`:''}</h2>${c.lunch&&isServing()?'<span class="serving"><i class="dot"></i>Serving now</span>':''}<p>${c.mn}</p></div>${art}</div>
-    ${groups}${sp}</section>`;
+    <div class="cat-head"><div><h2 id="h-${c.id}">${c.name.replace(' & ', ' &amp;<br>')}${c.lunch?`<span class="h-price">${k(c.lunch.price)}</span>`:''}</h2>${c.lunch&&isServing()?'<span class="serving"><i class="dot"></i>Serving now</span>':''}${c.happy&&isHappy()?'<span class="serving"><i class="dot"></i>Happy hour now</span>':''}<p>${c.mn}</p></div>${art}</div>
+    ${hh}${groups}${sp}</section>`;
 }
 
 function render(animate){

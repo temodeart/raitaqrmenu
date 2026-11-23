@@ -9,6 +9,7 @@ All items and prices live in the `MENU` array near the top of the `<script>` in 
 - Prices are in thousands of ₮: `30` shows as "30k".
 - Spirits use `[50ml, bottle]`; `null` shows "—".
 - Order changes with the time of day (Ulaanbaatar time): 06:00–16:59 food, coffee and soft drinks come first; from 17:00 cocktails, beer, wine and spirits come first (`DAY_ORDER` / `NIGHT_ORDER`).
+- Happy hour: every day 12:00–20:00, all beers 2+1 (`HAPPY_FROM` / `HAPPY_TO`). While it runs, Beer & Wine moves up (right after Food by day, first in the evening) and glows.
 - Lunch: weekdays 12:00–14:00 (`SERVE_FROM` / `SERVE_TO`). It sits at the front from 06:00 until 14:00 on weekdays and glows while it's being served; otherwise it goes last.
 
 Push to `main` and GitHub Pages updates the live page within a minute or two. The QR code points at the live URL, so it never needs reprinting.
