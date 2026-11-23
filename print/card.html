@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<title>Lighthouse — table QR card</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@144,900&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* A6 card: 105 × 148 mm trim. ?bleed=1 adds 3 mm on every side. ?sheet=a4 puts 4 cards on A4. */
+  :root{ --cream:#EFE5D8; --red:#BE3A26; --teal:#0E5952; --amber:#F7AC42; --b:0mm; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#fff}
+  body{font-family:'Manrope',sans-serif;color:var(--teal);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sheet{display:grid;grid-template-columns:repeat(var(--cols,1),calc(105mm + 2*var(--b)));}
+  .card{position:relative;width:calc(105mm + 2*var(--b));height:calc(148mm + 2*var(--b));background:var(--cream);overflow:hidden}
+  /* everything below is laid out inside the trim box */
+  .trim{position:absolute;inset:var(--b);display:flex;flex-direction:column;align-items:center;padding:9mm 9mm 0;text-align:center}
+  .logo{width:33mm;height:auto}
+  h1{font-family:'Fraunces',serif;font-weight:900;color:var(--red);font-size:25pt;line-height:.9;text-transform:uppercase;margin-top:5mm;letter-spacing:-.2pt}
+  .mn{font-size:9pt;font-weight:700;margin-top:2.2mm}
+  .qr{margin-top:5mm;background:#fff;border:.7mm solid var(--teal);border-radius:4mm;padding:3.2mm;width:47mm;height:47mm}
+  .qr img{width:100%;height:100%;display:block}
+  .lunch{margin-top:4.5mm;display:inline-flex;align-items:center;gap:2mm;font-size:8pt;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+    border:.35mm dashed var(--red);color:var(--red);border-radius:10mm;padding:1.4mm 3.6mm}
+  .lunch i{width:2.2mm;height:2.2mm;border-radius:50%;background:var(--amber);box-shadow:0 0 0 .8mm #F7AC4255}
+  .mascot{position:absolute;left:calc(var(--b) + 1mm);bottom:calc(var(--b) + 30mm);height:29mm;width:auto}
+  /* bottom band bleeds off three edges */
+  .band{position:absolute;left:0;right:0;bottom:0;height:calc(19mm + var(--b));background:var(--red);color:var(--cream);
+    display:flex;align-items:center;justify-content:center;gap:5mm;padding-bottom:var(--b);font-size:7.6pt;font-weight:600}
+  .band b{display:block;font-weight:800;font-size:6.2pt;letter-spacing:.14em;text-transform:uppercase;opacity:.75;margin-bottom:.6mm}
+  .band .sep{width:.3mm;height:9mm;background:#EFE5D855}
+  .band .col{text-align:left}
+  /* A4 sheet cut guides */
+  .sheet.a4 .card::after{content:"";position:absolute;inset:0;border:.15mm dashed #0E595266;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="sheet" id="sheet"></div>
+<template id="tpl">
+  <div class="card">
+    <div class="trim">
+      <img class="logo" src="../art/logo.svg" alt="Lighthouse">
+      <h1>Scan for<br>the menu</h1>
+      <p class="mn">QR уншуулж цэсээ үзээрэй</p>
+      <div class="qr"><img src="qr-menu.svg" alt="QR code to the Lighthouse menu"></div>
+      <div class="lunch"><i></i>Set lunch · Mon–Fri 12:00–14:00</div>
+    </div>
+    <img class="mascot" src="../art/coffee.svg" alt="">
+    <div class="band">
+      <div class="col"><b>Wi-Fi</b>LIGHTHOUSE · Raita123</div>
+      <div class="sep"></div>
+      <div class="col"><b>Instagram</b>@raita_lighthouse</div>
+    </div>
+  </div>
+</template>
+<script>
+  const q = new URLSearchParams(location.search);
+  const root = document.documentElement, sheet = document.getElementById('sheet');
+  let n = 1;
+  if (q.get('bleed')) root.style.setProperty('--b','3mm');
+  if (q.get('sheet') === 'a4'){ n = 4; root.style.setProperty('--cols','2'); sheet.classList.add('a4'); }
+  for (let i = 0; i < n; i++) sheet.appendChild(document.getElementById('tpl').content.cloneNode(true));
+</script>
+</body>
+</html>

@@ -208,16 +208,28 @@ const MENU = [
 /* ===== App ===== */
 const $ = s => document.querySelector(s);
 const k = v => v == null ? '—' : v + 'k';
-/* Lunch is served 12:00–14:00. Mon–Fri, 06:00–13:59 Ulaanbaatar time: Lunch goes first. Otherwise it goes last. */
-const DAY_FROM = 6, DAY_TO = 14;
-function hourUB(){ try { return +new Intl.DateTimeFormat('en-US',{hour:'numeric',hourCycle:'h23',timeZone:'Asia/Ulaanbaatar'}).format(new Date()); } catch(e){ return new Date().getHours(); } }
+/* Time-based order (Ulaanbaatar time).
+   Day 06:00–16:59: food, coffee and soft drinks first, alcohol after.
+   Evening/night 17:00–05:59: alcohol first, then food and coffee.
+   Lunch: first on weekdays from 06:00 until lunch ends at 14:00, otherwise last. Glows while served (12:00–13:59). */
+const DAY_FROM = 6, EVENING_FROM = 17;
 const SERVE_FROM = 12, SERVE_TO = 14;
-function isServing(){ const d = todayUB(), h = hourUB(); return d >= 1 && d <= 5 && h >= SERVE_FROM && h < SERVE_TO; }
-function isLunchTime(){ const d = todayUB(), h = hourUB(); return d >= 1 && d <= 5 && h >= DAY_FROM && h < DAY_TO; }
+const DAY_ORDER   = ['food','coffee','non-coffee','cocktails','beer-wine','spirits'];
+const NIGHT_ORDER = ['cocktails','beer-wine','spirits','food','coffee','non-coffee'];
+function hourUB(){ try { return +new Intl.DateTimeFormat('en-US',{hour:'numeric',hourCycle:'h23',timeZone:'Asia/Ulaanbaatar'}).format(new Date()) % 24; } catch(e){ return new Date().getHours(); } }
+const weekday = () => { const d = todayUB(); return d >= 1 && d <= 5; };
+function isDay(){ const h = hourUB(); return h >= DAY_FROM && h < EVENING_FROM; }
+function isServing(){ const h = hourUB(); return weekday() && h >= SERVE_FROM && h < SERVE_TO; }
+function isLunchTime(){ const h = hourUB(); return weekday() && h >= DAY_FROM && h < SERVE_TO; }
 function ordered(){
-  const lunch = MENU.filter(c => c.id === 'lunch'), rest = MENU.filter(c => c.id !== 'lunch');
-  return isLunchTime() ? [...lunch, ...rest] : [...rest, ...lunch];
+  const order = isDay() ? DAY_ORDER : NIGHT_ORDER;
+  const byId = id => MENU.find(c => c.id === id);
+  const main = order.map(byId).filter(Boolean);
+  const extra = MENU.filter(c => c.id !== 'lunch' && !order.includes(c.id));
+  const lunch = MENU.filter(c => c.id === 'lunch');
+  return isLunchTime() ? [...lunch, ...main, ...extra] : [...main, ...extra, ...lunch];
 }
+function stateKey(){ return [isServing(), isDay(), isLunchTime()].join(); }
 function todayUB(){ try { return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(new Intl.DateTimeFormat('en-US',{weekday:'short',timeZone:'Asia/Ulaanbaatar'}).format(new Date())); } catch(e){ return new Date().getDay(); } }
 let cat = 'all';
 const h0 = location.hash.slice(1);
@@ -287,8 +299,8 @@ $('#copyWifi').addEventListener('click', async () => {
 });
 
 chips(); render(false);
-let wasServing = isServing();
-setInterval(() => { const now = isServing(); if (now !== wasServing){ wasServing = now; chips(); render(false); } }, 60000);
+let lastState = stateKey();
+setInterval(() => { const now = stateKey(); if (now !== lastState){ lastState = now; chips(); render(false); } }, 60000);
 </script>
 </body>
 </html>
