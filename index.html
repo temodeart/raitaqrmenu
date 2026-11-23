@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lighthouse — Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@144,900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#EFE5D8; --cream-2:#E6DACA; --line:#0E595233;
+    --red:#BE3A26; --teal:#0E5952; --ink:#262626; --amber:#F7AC42;
+    --display:'Fraunces', Georgia, serif;
+    --body:'Manrope', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{background:var(--cream);color:var(--teal);font-family:var(--body);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased}
+  .app{max-width:520px;margin:0 auto;min-height:100vh}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+
+  /* Top */
+  .top{padding:24px 20px 16px;text-align:center}
+  .logo{width:150px;height:auto;display:block;margin:0 auto}
+  .wifi{margin:18px auto 0;display:flex;align-items:center;gap:10px;justify-content:space-between;
+    background:var(--teal);color:var(--cream);border-radius:14px;padding:10px 10px 10px 16px;text-align:left}
+  .wifi small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+  .wifi span{font-weight:600;font-size:14px}
+  .wifi button{flex:none;background:var(--cream);color:var(--teal);font-weight:700;font-size:13px;padding:9px 14px;border-radius:10px;min-width:92px}
+
+  /* Category bar */
+  .cats{position:sticky;top:0;z-index:5;background:rgba(239,229,216,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1.5px solid var(--teal)}
+  .cats-scroll{display:flex;gap:8px;overflow-x:auto;padding:12px 20px;scrollbar-width:none}
+  .cats-scroll::-webkit-scrollbar{display:none}
+  .chip{flex:none;font-weight:700;font-size:14px;padding:9px 15px;border-radius:999px;border:1.5px solid var(--teal);color:var(--teal);white-space:nowrap;transition:background .2s,color .2s,border-color .2s}
+  .chip[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:var(--cream)}
+  .chip:active{transform:scale(.97)}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--amber);margin-right:7px;vertical-align:1px;
+    box-shadow:0 0 0 0 #F7AC42aa;animation:ping 1.6s ease-out infinite}
+  .chip.live{border-color:var(--amber);background:#FFF4DC;color:var(--red);animation:glow 2.4s ease-in-out infinite}
+  .chip.live[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:var(--cream)}
+  @keyframes glow{0%,100%{box-shadow:0 0 0 0 #F7AC4200,0 0 10px 1px #F7AC4255}50%{box-shadow:0 0 0 3px #F7AC4255,0 0 22px 6px #F7AC4299}}
+  @keyframes ping{0%{box-shadow:0 0 0 0 #F7AC42cc}80%,100%{box-shadow:0 0 0 7px #F7AC4200}}
+  .serving{display:inline-flex;align-items:center;margin-top:10px;background:var(--red);color:var(--cream);font-weight:700;font-size:12px;
+    letter-spacing:.08em;text-transform:uppercase;padding:5px 12px 5px 10px;border-radius:999px;animation:glow 2.4s ease-in-out infinite}
+
+  /* Menu */
+  main{padding:0 20px 8px;min-height:60vh}
+  main.fade{animation:fade .28s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .cat{padding-top:34px}
+  .cat-head{position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:8px;min-height:92px;margin-bottom:6px}
+  .cat-head h2{font-family:var(--display);font-weight:900;font-size:46px;line-height:.88;letter-spacing:-.01em;color:var(--red);text-transform:uppercase}
+  .cat-head p{font-size:13px;font-weight:600;color:var(--teal);margin-top:8px;letter-spacing:.02em}
+  .cat-head img{height:104px;width:auto;flex:none;margin-bottom:-6px;margin-right:-6px}
+
+  .group{margin-top:22px}
+  .g-head{display:grid;grid-template-columns:1fr 52px 58px;align-items:end;border-bottom:1.5px solid var(--teal);padding-bottom:6px;margin-bottom:4px}
+  .g-head h3{font-family:var(--display);font-weight:900;font-size:19px;letter-spacing:.01em;text-transform:uppercase;color:var(--teal)}
+  .g-head.one{grid-template-columns:1fr auto}
+  .g-head span{font-size:12px;font-weight:700;text-align:right}
+  .g-head small{grid-column:1/-1;font-size:12px;opacity:.75;margin-top:2px}
+
+  .row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line)}
+  .row.two{grid-template-columns:1fr 52px 58px;gap:0}
+  .row:last-child{border-bottom:0}
+  .nm{font-weight:600;font-size:15.5px;color:var(--teal)}
+  .ds{display:block;font-weight:400;font-size:13px;opacity:.75;margin-top:2px}
+  .pr{font-weight:700;font-size:15.5px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .pr.na{opacity:.35}
+
+  /* Cocktails: dotted leaders like the print menu */
+  .ck{display:flex;align-items:baseline;gap:8px;padding:11px 0}
+  .ck .nm{font-size:16.5px}
+  .ck .lead{flex:1;border-bottom:1.5px dotted var(--teal);opacity:.45;transform:translateY(-4px);min-width:16px}
+  .ck .pr{font-family:var(--display);font-weight:900;font-size:21px}
+  .ck-wrap .ds{margin-top:-8px;padding-bottom:4px}
+  .special{margin:18px 0 4px;border:1.5px dashed var(--red);border-radius:16px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--red)}
+  .special b{font-family:var(--display);font-weight:900;font-size:22px;text-transform:uppercase;display:block;line-height:1}
+  .special span{font-size:14px;font-weight:600}
+  .h-price{text-transform:none;font-size:.6em;margin-left:.35em;color:var(--teal);vertical-align:.12em;white-space:nowrap}
+  .today{background:var(--red);color:var(--cream);border-radius:999px;padding:3px 10px;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  .special .pr{font-family:var(--display);font-size:24px}
+
+  /* Footer */
+  footer{margin:28px 0 0;background:var(--red);color:var(--cream);padding:28px 20px 40px;text-align:center}
+  footer .bye{font-family:var(--display);font-weight:900;font-size:30px;line-height:1;text-transform:uppercase;margin-bottom:14px}
+  footer p{font-size:14px;font-weight:500}
+  footer p+p{margin-top:6px}
+  footer a{color:var(--cream);font-weight:700}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--cream);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;transition:.25s;pointer-events:none;z-index:9}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+  @media (prefers-reduced-motion:reduce){main.fade,.chip.live,.dot,.serving{animation:none}.chip.live{box-shadow:0 0 0 3px #F7AC4266}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <img class="logo" src="art/logo.svg" alt="Lighthouse — ライターのハウス">
+    <div class="wifi">
+      <div><small>Wi‑Fi · LIGHTHOUSE</small><span>Password: Raita123</span></div>
+      <button id="copyWifi" type="button">Copy</button>
+    </div>
+  </div>
+
+  <nav class="cats" aria-label="Menu categories"><div class="cats-scroll" id="cats"></div></nav>
+  <main id="menu"></main>
+
+  <footer>
+    <div class="bye">See you under<br>the light</div>
+    <p>Харшилтай бол хэлээрэй · Tell us about allergies</p>
+    <p>Instagram <a href="https://www.instagram.com/raita_lighthouse/">@raita_lighthouse</a></p>
+    <p>Tel <a href="tel:+97688869924">8886-9924</a></p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ===== MENU DATA — edit here =====
+   Prices in thousands of ₮ (30 → "30k"). Two-column groups use p:[50ml, bottle]; null = not sold. */
+const MENU = [
+  { id:'cocktails', name:'Cocktails', mn:'Коктейль', art:'cocktail', style:'cocktail', groups:[
+    { items:[
+      ['Aperol Spritz','Aperol, Prosecco, Soda',30],
+      ['Choya Spritz','Choya, Prosecco, Soda',35],
+      ['Cosmopolitan','Vodka, Cranberry juice, Lime juice, Simple syrup, Cointreau',30],
+      ['Daiquiri','Rum, Lime juice, Brown sugar syrup',30],
+      ['Espresso Martini','Vodka, Espresso, Coffee liqueur',30],
+      ['Long Island Iced Tea','Vodka, Tequila, Rum, Gin, Cointreau, Lemon juice, Cola',35],
+      ['Margarita','Tequila, Lime juice, Cointreau, Simple syrup',30],
+      ['Martini','Gin or Vodka, Dry vermouth, Olive juice',28],
+      ['Negroni','Gin, Campari, Rosso',30],
+      ['Old Fashioned','Whiskey, Brown sugar syrup, Angostura',40],
+      ['Whiskey Sour','Whiskey, Lemon juice, Egg white, Angostura bitters',35],
+      ['White Russian','Vodka, Coffee liqueur, Whipping cream',30],
+    ]},
+  ], special:['Bartender Special','Sip Happens :)',40] },
+
+  { id:'spirits', name:'House Spirits', mn:'Хүчтэй ундаа', cols:['50 ml','Bottle'], groups:[
+    { name:'Whiskey', items:[['Jameson',null,[22,280]],['Glenmorangie',null,[35,400]],['Tenjaku',null,[25,320]],['Wild Turkey',null,[22,300]]] },
+    { name:'Gin', items:[["Gordon's",null,[22,250]],['Bulldog',null,[25,280]],['Barrister Dry Gin',null,[20,180]]] },
+    { name:'Vodka', items:[['Zubrovka',null,[20,150]],['Beluga',null,[null,350]]] },
+    { name:'Tequila', items:[['Espolon',null,[25,320]],['Sierra Reposado',null,[null,280]]] },
+    { name:'Liqueur', items:[['Jägermeister',null,[20,280]],['Choya',null,[22,180]]] },
+  ]},
+
+  { id:'beer-wine', name:'Beer & Wine', mn:'Шар айраг, дарс', art:'beer', groups:[
+    { name:'Draught beer', items:[['Altangobi',null,15],['Sengur',null,13]] },
+    { name:'Bottled beer', items:[['Asahi','0.33 L',16],['Corona','0.33 L',16],['Kaltenberg',null,14],['Borgio',null,14]] },
+    { name:'House wine', note:'By the glass', items:[['House white wine',null,20],['House red wine',null,18]] },
+    { name:'Bottle wine', items:[['Maison Castel Chardonnay',null,120],['Maison Castel Pinot Noir',null,120]] },
+  ]},
+
+  { id:'coffee', name:'Coffee', mn:'Кофе', art:'coffee', groups:[
+    { name:'Coffee', items:[
+      ['Espresso / Lungo',null,8],['Americano',null,8],['Café Latte',null,10],['Dirty Coffee',null,10],['Cortado',null,10],
+      ['Cappuccino',null,10],['Flat White',null,10],['Flavoured latte','Vanilla / Caramel / Nut / Mocha',12],
+      ['Espresso Tonic',null,13],['Orange Espresso',null,13]] },
+    { name:'Specialty coffee', items:[
+      ['Pour Over (V60)','Single cup',9],['Pour Over (V60)','Two cups',13],['Cold Brew',null,12],['Creamy Matcha',null,14]] },
+  ]},
+
+  { id:'non-coffee', name:'Non-Coffee', mn:'Кофегүй ундаа', groups:[
+    { name:'Cold', items:[
+      ['Iced Tea','Peach / Passion fruit / Strawberry',12],
+      ['Ades','Lemon / Passion fruit / Strawberry / Peach',12],
+      ['Smoothie','Yoghurt / Strawberry / Peach',14]] },
+    { name:'Tea, matcha & chocolate', items:[
+      ['Matcha Latte',null,10],['Strawberry / Blueberry Matcha',null,12],['Hot Chocolate',null,10],
+      ['Pot tea','Berries / Passion fruit / Citrus / Apple cinnamon',15],
+      ['Cup tea','Berries / Passion fruit / Citrus',9]] },
+  ]},
+
+  { id:'lunch', name:'Lunch', mn:'Өдрийн хоол · Mon–Fri 12:00–14:00', lunch:{ price:20.9, note:'Set lunch · Mon–Fri, one set a day' }, groups:[
+    { name:'Monday', day:1, items:[['Goulash + Marrow Soup','Гуляш, тойгны шөл']] },
+    { name:'Tuesday', day:2, items:[['Cutlet + Egg Soup','Котлет, өндөгтэй шөл']] },
+    { name:'Wednesday', day:3, items:[['Japchae + Marrow Soup','Жапчэ, тойгны шөл']] },
+    { name:'Thursday', day:4, items:[['Jeyuk Pork + Egg Soup','Жэюг, өндөгтэй шөл']] },
+    { name:'Friday', day:5, items:[['Tavan Tsul Soup + Khuushuur','Таван цулын шөл, хуушуур']] },
+  ]},
+
+  { id:'food', name:'Food', mn:'Хоол', art:'food', groups:[
+    { name:'Main', items:[
+      ['Beef Brisket Noodle','Өвчүүний махтай цуйван',30.8],
+      ['Rib Noodle','Хавиргатай цуйван',28],
+      ['Yakisoba','Якисоба',28],
+      ['Teriyaki Udon','Терияки удон',28],
+      ['Stir-Fried Lamb','Хонины махтай хуурга',null],
+      ['Khuushuur ×5','Хуушуур · 5 ширхэг',22]] },
+    { name:'Soup', items:[
+      ['Lamb Marrow Dumpling Soup','Хонины тойгтой банштай шөл',27.5],
+      ['Recovery Soup','Ядаргаа тайлах шөл',27.5]] },
+
+    { name:'Share food', items:[
+      ['Meat Platter','Махан цуглуулга · Pork, chicken, beef, ribs, potato',121]] },
+    { name:'Side dish', items:[
+      ['Fried Dumplings','Шарсан банш',20],
+      ['Chicken Skewers','Тахианы шорлог',15],
+      ['French Fries','Шарсан төмс',12],
+      ['Homemade Potato',null,14],
+      ['Nugget',null,16],['Fries and nugget',null,26]] },
+    { name:'Pizza', items:[['Meat Lovers Pizza',null,35],['Pepperoni',null,30]] },
+  ]},
+];
+
+/* ===== App ===== */
+const $ = s => document.querySelector(s);
+const k = v => v == null ? '—' : v + 'k';
+/* Lunch is served 12:00–14:00. Mon–Fri, 06:00–13:59 Ulaanbaatar time: Lunch goes first. Otherwise it goes last. */
+const DAY_FROM = 6, DAY_TO = 14;
+function hourUB(){ try { return +new Intl.DateTimeFormat('en-US',{hour:'numeric',hourCycle:'h23',timeZone:'Asia/Ulaanbaatar'}).format(new Date()); } catch(e){ return new Date().getHours(); } }
+const SERVE_FROM = 12, SERVE_TO = 14;
+function isServing(){ const d = todayUB(), h = hourUB(); return d >= 1 && d <= 5 && h >= SERVE_FROM && h < SERVE_TO; }
+function isLunchTime(){ const d = todayUB(), h = hourUB(); return d >= 1 && d <= 5 && h >= DAY_FROM && h < DAY_TO; }
+function ordered(){
+  const lunch = MENU.filter(c => c.id === 'lunch'), rest = MENU.filter(c => c.id !== 'lunch');
+  return isLunchTime() ? [...lunch, ...rest] : [...rest, ...lunch];
+}
+function todayUB(){ try { return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(new Intl.DateTimeFormat('en-US',{weekday:'short',timeZone:'Asia/Ulaanbaatar'}).format(new Date())); } catch(e){ return new Date().getDay(); } }
+let cat = 'all';
+const h0 = location.hash.slice(1);
+if (MENU.some(c => c.id === h0)) cat = h0;
+
+function chips(){
+  const list = [{id:'all',name:'All'}, ...ordered()];
+  $('#cats').innerHTML = list.map(c =>
+    `<button class="chip${c.id==='lunch'&&isServing()?' live':''}" data-cat="${c.id}" aria-pressed="${c.id===cat}">${c.id==='lunch'&&isServing()?'<i class="dot" aria-hidden="true"></i>':''}${c.name}${c.id==='lunch'&&isServing()?'<span class="sr"> — serving now</span>':''}</button>`).join('');
+}
+
+function rowHTML([n,d,p], two){
+  const ds = d ? `<span class="ds">${d}</span>` : '';
+  if (two) return `<div class="row two"><div class="nm">${n}${ds}</div>
+    <div class="pr ${p[0]==null?'na':''}">${k(p[0])}</div><div class="pr ${p[1]==null?'na':''}">${k(p[1])}</div></div>`;
+  if (p === undefined) return `<div class="row"><div class="nm">${n}${ds}</div></div>`;
+  return `<div class="row"><div class="nm">${n}${ds}</div><div class="pr ${p==null?'na':''}">${k(p)}</div></div>`;
+}
+
+function cocktailHTML([n,d,p]){
+  return `<div class="ck-wrap"><div class="ck"><span class="nm">${n}</span><span class="lead"></span><span class="pr">${k(p)}</span></div>
+    <span class="ds">${d}</span></div>`;
+}
+
+function catHTML(c){
+  const art = c.art ? `<img src="art/${c.art}.svg" alt="" aria-hidden="true">` : '';
+  const groups = c.groups.map(g => {
+    if (c.style === 'cocktail') return g.items.map(cocktailHTML).join('');
+    const two = !!c.cols;
+    const head = two
+      ? `<div class="g-head"><h3>${g.name}</h3><span>${c.cols[0]}</span><span>${c.cols[1]}</span></div>`
+      : `<div class="g-head one"><h3>${g.name}</h3>${g.day===todayUB()?'<span class="today">Today</span>':g.note?`<span>${g.note}</span>`:''}</div>`;
+    return `<div class="group">${head}${g.items.map(i => rowHTML(i, two)).join('')}</div>`;
+  }).join('');
+  const sp = c.special ? `<div class="special"><div><b>${c.special[0]}</b><span>${c.special[1]}</span></div><span class="pr">${k(c.special[2])}</span></div>` : '';
+  return `<section class="cat" id="s-${c.id}" aria-labelledby="h-${c.id}">
+    <div class="cat-head"><div><h2 id="h-${c.id}">${c.name.replace(' & ', ' &amp;<br>')}${c.lunch?`<span class="h-price">${k(c.lunch.price)}</span>`:''}</h2>${c.lunch&&isServing()?'<span class="serving"><i class="dot"></i>Serving now</span>':''}<p>${c.mn}</p></div>${art}</div>
+    ${groups}${sp}</section>`;
+}
+
+function render(animate){
+  const list = cat === 'all' ? ordered() : MENU.filter(c => c.id === cat);
+  const m = $('#menu');
+  m.innerHTML = list.map(catHTML).join('');
+  if (animate){ m.classList.remove('fade'); void m.offsetWidth; m.classList.add('fade'); }
+}
+
+$('#cats').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b || b.dataset.cat === cat) return;
+  cat = b.dataset.cat; chips(); render(true);
+  try { history.replaceState(null, '', cat === 'all' ? location.pathname : '#' + cat); } catch(err){}
+  b.scrollIntoView && $('#cats .chip[aria-pressed="true"]').scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+  const nav = $('.cats');
+  if (nav.getBoundingClientRect().top <= 0) window.scrollTo({top: nav.offsetTop, behavior:'smooth'});
+});
+
+window.addEventListener('hashchange', () => {
+  const id = location.hash.slice(1);
+  cat = MENU.some(c => c.id === id) ? id : 'all'; chips(); render(true);
+});
+
+let tt;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('on'),1800); }
+$('#copyWifi').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText('Raita123'); toast('Password copied'); $('#copyWifi').textContent='Copied ✓'; }
+  catch(err){ toast('Password: Raita123'); }
+});
+
+chips(); render(false);
+let wasServing = isServing();
+setInterval(() => { const now = isServing(); if (now !== wasServing){ wasServing = now; chips(); render(false); } }, 60000);
+</script>
+</body>
+</html>
